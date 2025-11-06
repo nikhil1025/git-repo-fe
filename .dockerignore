@@ -1,0 +1,12 @@
+node_modules
+dist
+.angular
+.git
+.gitignore
+.vscode
+*.md
+*.log
+.env
+.env.local
+coverage
+.nyc_output

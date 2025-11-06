@@ -1,0 +1,10 @@
+<mat-toolbar color="primary">
+  <span>{{ title }}</span>
+  <span class="spacer"></span>
+  <button mat-button (click)="navigateToIntegration()">Integration</button>
+  <button mat-button (click)="navigateToData()">View Data</button>
+</mat-toolbar>
+
+<main>
+  <router-outlet></router-outlet>
+</main>

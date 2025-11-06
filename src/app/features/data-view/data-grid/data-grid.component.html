@@ -1,0 +1,61 @@
+<div class="data-view-container">
+    <mat-card>
+        <mat-card-header>
+            <mat-card-title>GitHub Data Viewer</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+            <div class="controls-row">
+                <mat-form-field appearance="outline">
+                    <mat-label>Active Integration</mat-label>
+                    <mat-select [value]="'github'" [disabled]="true">
+                        <mat-option value="github">GitHub</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Entity</mat-label>
+                    <mat-select [(value)]="selectedCollection" (selectionChange)="onCollectionChange($event.value)">
+                        <mat-option *ngFor="let collection of collections" [value]="collection">
+                            {{ collection }}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="search-field">
+                    <mat-label>Global Search</mat-label>
+                    <input matInput [(ngModel)]="searchValue" (ngModelChange)="onSearchChange($event)"
+                        placeholder="Search across all fields...">
+                    <mat-icon matSuffix>search</mat-icon>
+                </mat-form-field>
+
+                <button mat-raised-button color="accent" (click)="exportToCsv()" [disabled]="!selectedCollection"
+                    class="export-button">
+                    <mat-icon>download</mat-icon>
+                    Export to CSV
+                </button>
+            </div>
+
+            <div class="selection-info" *ngIf="selectedRows.length > 0">
+                <mat-chip-set>
+                    <mat-chip>{{ selectedRows.length }} row(s) selected</mat-chip>
+                    <mat-chip (click)="clearSelection()" class="clickable-chip">
+                        <mat-icon>clear</mat-icon>
+                        Clear Selection
+                    </mat-chip>
+                </mat-chip-set>
+            </div>
+
+            <div *ngIf="selectedCollection" class="grid-container">
+                <ag-grid-angular class="ag-theme-material" [gridOptions]="gridOptions" [columnDefs]="columnDefs"
+                    [rowData]="rowData" style="width: 100%; height: 100%;">
+                </ag-grid-angular>
+            </div>
+
+            <div *ngIf="!selectedCollection" class="no-selection">
+                <mat-icon>table_chart</mat-icon>
+                <p>Select an entity to view data</p>
+            </div>
+        </mat-card-content>
+    </mat-card>
+</div>

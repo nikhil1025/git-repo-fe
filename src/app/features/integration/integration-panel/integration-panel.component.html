@@ -1,0 +1,101 @@
+<div class="integration-container">
+    <div class="integration-card">
+        <div class="card-header">
+            <div class="header-content">
+                <div class="header-icon">
+                    <mat-icon>hub</mat-icon>
+                </div>
+                <div class="header-text">
+                    <h2 class="header-title">GitHub Integration</h2>
+                    <p class="header-subtitle">Connect and sync your GitHub data</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-content">
+            <div *ngIf="!integrationStatus?.isConnected && !isLoading" class="connection-state not-connected">
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <mat-icon>account_circle</mat-icon>
+                    </div>
+                    <h3 class="empty-title">No GitHub Account Connected</h3>
+                    <p class="empty-description">
+                        Connect your GitHub account to start syncing repositories, commits, and issues.
+                    </p>
+                    <button mat-flat-button color="primary" class="connect-btn" (click)="connectGithub()"
+                        [disabled]="isLoading">
+                        <mat-icon>add</mat-icon>
+                        <span>Connect GitHub</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div *ngIf="integrationStatus?.isConnected && integrationStatus?.integration as integration"
+                class="connection-state connected">
+                <div class="status-banner">
+                    <div class="status-icon">
+                        <mat-icon>check_circle</mat-icon>
+                    </div>
+                    <div class="status-text">
+                        <span class="status-label">Connected</span>
+                        <span class="status-account">{{ integration.githubUser.login }}</span>
+                    </div>
+                </div>
+
+                <div class="account-details">
+                    <div class="detail-row">
+                        <mat-icon class="detail-icon">person</mat-icon>
+                        <div class="detail-content">
+                            <span class="detail-label">Account</span>
+                            <span class="detail-value">{{ integration.githubUser.login }}</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-row">
+                        <mat-icon class="detail-icon">schedule</mat-icon>
+                        <div class="detail-content">
+                            <span class="detail-label">Connected</span>
+                            <span class="detail-value">{{ integration.connectedAt | date:'medium' }}</span>
+                        </div>
+                    </div>
+
+                    <div *ngIf="integration.lastSyncedAt" class="detail-row">
+                        <mat-icon class="detail-icon">sync</mat-icon>
+                        <div class="detail-content">
+                            <span class="detail-label">Last Sync</span>
+                            <span class="detail-value">{{ integration.lastSyncedAt | date:'medium' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-panel">
+                    <div class="panel-header">
+                        <h4 class="panel-title">Integration Actions</h4>
+                        <p class="panel-description">Manage your GitHub data synchronization</p>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button mat-flat-button class="action-btn sync-btn" (click)="resyncIntegration()"
+                            [disabled]="isLoading">
+                            <mat-icon>sync</mat-icon>
+                            <span>Re-sync Data</span>
+                        </button>
+
+                        <button mat-stroked-button class="action-btn remove-btn" (click)="removeIntegration()"
+                            [disabled]="isLoading">
+                            <mat-icon>delete_outline</mat-icon>
+                            <span>Remove Integration</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="isLoading" class="loading-state">
+                <div class="loading-content">
+                    <mat-spinner diameter="40" class="loading-spinner"></mat-spinner>
+                    <p class="loading-text">Processing...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
