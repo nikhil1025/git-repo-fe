@@ -29,7 +29,7 @@
                     </button>
                 </div>
             </div>
-            
+
             <div *ngIf="integrationStatus?.isConnected && integrationStatus?.integration as integration"
                 class="connection-state connected">
                 <div class="status-banner">
@@ -68,25 +68,34 @@
                     </div>
                 </div>
 
-                <div class="action-panel">
-                    <div class="panel-header">
-                        <h4 class="panel-title">Integration Actions</h4>
-                        <p class="panel-description">Manage your GitHub data synchronization</p>
-                    </div>
+                <div class="action-panel-wrapper">
+                    <mat-expansion-panel class="action-expansion-panel" [expanded]="isExpanded">
+                        <mat-expansion-panel-header class="custom-panel-header">
+                            <mat-panel-title class="custom-panel-title">
+                                <mat-icon class="panel-icon">settings</mat-icon>
+                                <span>Integration Actions</span>
+                            </mat-panel-title>
+                            <mat-panel-description class="custom-panel-description">
+                                Manage your GitHub data synchronization
+                            </mat-panel-description>
+                        </mat-expansion-panel-header>
 
-                    <div class="action-buttons">
-                        <button mat-flat-button class="action-btn sync-btn" (click)="resyncIntegration()"
-                            [disabled]="isLoading">
-                            <mat-icon>sync</mat-icon>
-                            <span>Re-sync Data</span>
-                        </button>
+                        <div class="panel-content">
+                            <div class="action-buttons">
+                                <button mat-flat-button class="action-btn sync-btn" (click)="resyncIntegration()"
+                                    [disabled]="isLoading">
+                                    <mat-icon>sync</mat-icon>
+                                    <span>Re-sync Data</span>
+                                </button>
 
-                        <button mat-stroked-button class="action-btn remove-btn" (click)="removeIntegration()"
-                            [disabled]="isLoading">
-                            <mat-icon>delete_outline</mat-icon>
-                            <span>Remove Integration</span>
-                        </button>
-                    </div>
+                                <button mat-stroked-button class="action-btn remove-btn" (click)="removeIntegration()"
+                                    [disabled]="isLoading">
+                                    <mat-icon>delete_outline</mat-icon>
+                                    <span>Remove Integration</span>
+                                </button>
+                            </div>
+                        </div>
+                    </mat-expansion-panel>
                 </div>
             </div>
 
