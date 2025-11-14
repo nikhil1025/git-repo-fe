@@ -1,0 +1,85 @@
+.dialog-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+
+  mat-icon {
+    color: #79c0ff;
+  }
+}
+
+.metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+
+  .meta-item {
+    background: rgba(121, 192, 255, 0.08);
+    border: 1px solid rgba(121, 192, 255, 0.2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    min-width: 160px;
+
+    .label {
+      display: block;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 4px;
+    }
+
+    .value {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #ffffff;
+      word-break: break-word;
+    }
+  }
+}
+
+.preview-shell {
+  background: #0f1523;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px;
+  max-height: 55vh;
+  overflow: auto;
+
+  pre {
+    margin: 0;
+    font-family: "JetBrains Mono", "Fira Code", "SFMono-Regular", Consolas,
+      "Liberation Mono", monospace;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: #e8edf9;
+    white-space: pre;
+  }
+
+  &.wrap-text pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+}
+
+mat-dialog-content {
+  padding-top: 8px;
+}
+
+mat-dialog-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .copy-status {
+    margin-right: auto;
+    font-size: 0.85rem;
+    color: #4caf50;
+
+    &.error {
+      color: #ef5350;
+    }
+  }
+}

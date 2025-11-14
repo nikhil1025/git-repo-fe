@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { GridApi, GridOptions } from 'ag-grid-community';
 import { Subject } from 'rxjs';
@@ -7,15 +14,21 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { DataRequest } from '../../../core/models/ag-grid';
 import { GithubDataService } from '../../../core/services/github-data.service';
 import { SharedModule } from '../../../shared/shared.module';
+import {
+  PreviewDialogComponent,
+  PreviewDialogData,
+} from './preview-dialog/preview-dialog.component';
 
 @Component({
   selector: 'app-data-grid',
   templateUrl: './data-grid.component.html',
   styleUrl: './data-grid.component.scss',
   standalone: true,
-  imports: [CommonModule, SharedModule],
+  imports: [CommonModule, SharedModule, MatDialogModule],
 })
 export class DataGridComponent implements OnInit, OnDestroy {
+  @ViewChild('gridHost', { read: ElementRef })
+  gridHost?: ElementRef<HTMLElement>;
   collections: string[] = [];
   selectedCollection: string = '';
   searchValue: string = '';
@@ -32,10 +45,12 @@ export class DataGridComponent implements OnInit, OnDestroy {
   private searchSubject = new Subject<string>();
   private destroy$ = new Subject<void>();
   private gridClickHandler: ((event: Event) => void) | null = null;
+  private gridElementRef: Element | null = null;
 
   constructor(
     private githubDataService: GithubDataService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {
     this.gridOptions = {
       defaultColDef: {
@@ -171,12 +186,10 @@ export class DataGridComponent implements OnInit, OnDestroy {
                 if (!value) return '';
 
                 const container = document.createElement('div');
-                container.style.cssText =
-                  'display: flex; align-items: center; gap: 8px; padding: 4px 0;';
+                container.className = 'preview-cell-wrapper';
 
                 const previewText = document.createElement('div');
-                previewText.style.cssText =
-                  'flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: #333;';
+                previewText.className = 'preview-value';
 
                 let displayText = '';
                 if (Array.isArray(value)) {
@@ -191,7 +204,9 @@ export class DataGridComponent implements OnInit, OnDestroy {
                       }
                       return item;
                     });
-                    displayText = `[${preview.join(', ')}, ... +${value.length - 3} more]`;
+                    displayText = `[${preview.join(', ')}, ... +${
+                      value.length - 3
+                    } more]`;
                   }
                 } else if (typeof value === 'object') {
                   const keys = Object.keys(value);
@@ -200,8 +215,12 @@ export class DataGridComponent implements OnInit, OnDestroy {
                   } else if (keys.length <= 3) {
                     displayText = JSON.stringify(value);
                   } else {
-                    const preview = keys.slice(0, 3).map(key => `${key}: ${JSON.stringify(value[key])}`);
-                    displayText = `{${preview.join(', ')}, ... +${keys.length - 3} more}`;
+                    const preview = keys
+                      .slice(0, 3)
+                      .map((key) => `${key}: ${JSON.stringify(value[key])}`);
+                    displayText = `{${preview.join(', ')}, ... +${
+                      keys.length - 3
+                    } more}`;
                   }
                 }
 
@@ -210,8 +229,7 @@ export class DataGridComponent implements OnInit, OnDestroy {
 
                 const button = document.createElement('button');
                 button.className = 'preview-btn';
-                button.style.cssText =
-                  'padding: 2px 6px; border: 1px solid #ffffff; background: #ffffff; color: white; border-radius: 3px; cursor: pointer; font-size: 11px; white-space: nowrap;';
+                button.type = 'button';
 
                 button.setAttribute('data-field-name', field.field);
                 button.setAttribute('data-field-type', field.type || 'unknown');
@@ -219,13 +237,10 @@ export class DataGridComponent implements OnInit, OnDestroy {
                   'data-preview-value',
                   JSON.stringify(value)
                 );
+                button.setAttribute('data-field-label', colDef.headerName);
 
-                if (Array.isArray(value)) {
-                  button.innerHTML = ``;
-                } else if (typeof value === 'object') {
-                  const keys = Object.keys(value).length;
-                  button.innerHTML = ``;
-                }
+                button.innerHTML =
+                  '<span class="preview-icon">👁️</span><span>Preview</span>';
 
                 container.appendChild(previewText);
                 container.appendChild(button);
@@ -341,7 +356,9 @@ export class DataGridComponent implements OnInit, OnDestroy {
     // remove existing listener if any
     this.removePreviewButtonListener();
 
-    const gridElement = document.querySelector('.ag-theme-material');
+    const gridElement =
+      this.gridHost?.nativeElement ||
+      document.querySelector('.ag-theme-material');
     if (!gridElement) {
       // console.warn('Grid element not found for event delegation');
       return;
@@ -361,12 +378,15 @@ export class DataGridComponent implements OnInit, OnDestroy {
 
         // Get data from attributes
         const fieldName = button.getAttribute('data-field-name');
+        const fieldLabel =
+          button.getAttribute('data-field-label') ||
+          (fieldName ? this.formatHeaderName(fieldName) : 'Preview');
         const valueStr = button.getAttribute('data-preview-value');
 
         if (fieldName && valueStr) {
           try {
             const value = JSON.parse(valueStr);
-            this.showPreviewDialog(fieldName, value);
+            this.showPreviewDialog(fieldName, fieldLabel, value);
           } catch (error) {
             // console.error('Error parsing preview value:', error);
             this.snackBar.open('Error displaying preview', 'Close', {
@@ -379,25 +399,34 @@ export class DataGridComponent implements OnInit, OnDestroy {
 
     // Add single listener to grid container
     gridElement.addEventListener('click', this.gridClickHandler);
+    this.gridElementRef = gridElement;
     // console.log('Event delegation listener added for preview buttons');
   }
 
   removePreviewButtonListener(): void {
     if (this.gridClickHandler) {
-      const gridElement = document.querySelector('.ag-theme-material');
-      if (gridElement) {
-        gridElement.removeEventListener('click', this.gridClickHandler);
+      if (this.gridElementRef) {
+        this.gridElementRef.removeEventListener('click', this.gridClickHandler);
         // console.log('Event delegation listener removed');
       }
       this.gridClickHandler = null;
+      this.gridElementRef = null;
     }
   }
 
-  showPreviewDialog(fieldName: string, data: any): void {
-    const formattedName = this.formatHeaderName(fieldName);
-    const jsonString = JSON.stringify(data, null, 2);
+  showPreviewDialog(fieldName: string, label: string, data: any): void {
+    const dialogData: PreviewDialogData = {
+      fieldLabel: label,
+      fieldPath: fieldName,
+      value: data,
+    };
 
-    alert(`${formattedName}:\n\n${jsonString}`);
+    this.dialog.open(PreviewDialogComponent, {
+      width: '720px',
+      maxHeight: '80vh',
+      panelClass: 'preview-dialog-panel',
+      data: dialogData,
+    });
   }
 
   private formatHeaderName(field: string): string {

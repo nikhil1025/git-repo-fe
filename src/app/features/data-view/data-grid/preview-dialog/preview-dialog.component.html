@@ -1,0 +1,39 @@
+<h2 mat-dialog-title class="dialog-title">
+    <mat-icon>visibility</mat-icon>
+    <span>{{ data.fieldLabel }}</span>
+</h2>
+
+<mat-dialog-content>
+    <div class="metadata">
+        <div class="meta-item">
+            <span class="label">Field</span>
+            <span class="value">{{ data.fieldPath }}</span>
+        </div>
+        <div class="meta-item">
+            <span class="label">Type</span>
+            <span class="value">{{ valueType }}<ng-container *ngIf="valueStats"> · {{ valueStats
+                    }}</ng-container></span>
+        </div>
+    </div>
+
+    <div class="preview-shell" [class.wrap-text]="wrapJson">
+        <pre>{{ formattedJson }}</pre>
+    </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <div class="copy-status" *ngIf="copyState === 'copied'">Copied!</div>
+    <div class="copy-status error" *ngIf="copyState === 'failed'">Copy failed</div>
+
+    <button mat-button type="button" (click)="toggleWrap()">
+        <mat-icon>wrap_text</mat-icon>
+        {{ wrapJson ? 'Disable wrap' : 'Wrap text' }}
+    </button>
+    <button mat-button type="button" (click)="copyJson()">
+        <mat-icon>{{ copyState === 'copied' ? 'check' : 'content_copy' }}</mat-icon>
+        {{ copyState === 'copied' ? 'Copied' : 'Copy JSON' }}
+    </button>
+    <button mat-flat-button color="primary" type="button" (click)="close()">
+        Close
+    </button>
+</mat-dialog-actions>
