@@ -210,10 +210,3 @@ See the provided docker-compose.yml for service bindings and environment variabl
 - Dockerfile & docker-compose.yml — containerization
 
 ---
-
-If you’d like, I can:
-- commit this README to the repository as a new file (I can open a PR for that), or
-- expand any section with more exact code examples (for example the expected backend JSON shapes), or
-- generate a shorter plain README or a README tailored for end-users vs developers.
-
-```
