@@ -2,8 +2,6 @@
 
 A lightweight Angular frontend for syncing and exploring GitHub data (repositories, commits, PRs, issues, users, etc.). It provides an integration panel to connect a GitHub account via OAuth and a data viewer powered by AG Grid to browse synced collections with server-side pagination, search, filters, previews and CSV export.
 
-> NOTE: I inspected this repository to generate this README, but the code search results used to gather file contents may be incomplete. To view the full source tree in your browser, see: https://github.com/nikhil1025/git-repo-fe/tree/main/src
-
 ## Key features
 
 - GitHub OAuth flow to connect user accounts.
